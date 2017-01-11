@@ -5,7 +5,6 @@
 * **RunsBA.R**: Plotting runs scored against batting average
 * **RunsOBP.R**: Plotting runs scored against on-base percentage
 * **RunsSLG.R**: Plotting runs scored against slugging percentage
-
 * **RunsBA.png**: Plot of runs scored against batting average
 * **RunsOBP.png**: Plot of runs scored against on-base percentage
 * **RunsSLG.png**: Plot of runs scored against slugging percentage
