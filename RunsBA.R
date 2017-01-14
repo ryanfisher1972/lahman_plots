@@ -12,15 +12,22 @@ hbp_sf <- Batting %>%
     summarise(HBP = sum(HBP, na.rm = TRUE),
               SF = sum(SF, na.rm = TRUE))
 
+# Only include team batting data from 1954 onwards
 teams_batting <- Teams %>% 
     filter(yearID >= 1954) %>% 
     select(yearID:L, R:CS, name) %>%                           
     left_join(hbp_sf, by = c("yearID", "lgID", "teamID")) %>%   # insert tallied HBP and SF
-    droplevels() %>%                                            # drop unused levels
+    droplevels() %>%                                            # drop unused factor levels
     group_by(yearID, lgID, teamID) %>% 
+    # calculate triple slash stats (Batting Average, On-Base Percentage & Slugging Percentage)
     mutate(BA = H/AB,
            OBP = (H + BB + HBP)/(AB + BB + HBP + SF),
            SLG = (H + X2B + 2*X3B + 3*HR)/AB)
+
+# separate yearID by decade, and give appropriate labels
+teams_batting$decade <- cut(teams_batting$yearID, breaks = seq(1950, 2020, by = 10))
+levels(teams_batting$decade) <- c("1950s", "1960s", "1970s", "1980s", 
+                                  "1990s", "2000s", "2010s")
 
 # create a linear model and obtain the R-squared coefficient
 # store the R-squared
@@ -31,7 +38,7 @@ ba_rsq <- substitute(r^2~~"="~~rsq,
     as.character()
 
 # plot Runs against Batting Average with R-squared coefficient
-png("RunsBA.png", width = 720, height = 720)    
+png("RunsBA.png", width = 720, height = 720)
 ggplot(teams_batting, aes(x = BA, y = R)) +
     geom_point(alpha = 0.3) +
     geom_smooth(method = "lm", size = 1.5, se = FALSE) +
@@ -43,4 +50,18 @@ ggplot(teams_batting, aes(x = BA, y = R)) +
          subtitle = "Data from 1954 to 2015 (Regular Season Only)", 
          x = "Batting Average", y = "Runs Scored") +
     theme_bw()
+dev.off()
+
+# plot Runs against BA per decade (faceted)
+png("RunsBA-decade.png", width = 720, height = 960)
+ggplot(teams_batting, aes(x = BA, y = R, color = decade)) +
+    geom_point(alpha = 0.3) +
+    geom_smooth(method = "lm", size = 1, se = FALSE) +
+    scale_x_continuous(expand = c(0.03,0), breaks = seq(0.22,0.30,0.01)) +
+    facet_wrap(~ decade, ncol = 2, dir = "v") +
+    labs(title = "Each team's Runs Scored against Batting Average every year", 
+         subtitle = "Data from 1954 to 2015 (Regular Season Only)", 
+         x = "Batting Average", y = "Runs Scored") +
+    theme_bw() +
+    theme(legend.position = "none")
 dev.off()
