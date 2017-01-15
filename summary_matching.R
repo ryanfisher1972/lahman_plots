@@ -1,5 +1,4 @@
 library(Lahman)
-library(tidyr)
 library(dplyr)
 library(ggplot2)
 
@@ -11,7 +10,7 @@ data("Batting")
 Teams %>% 
     filter(!is.na(HBP)) %>%  
     `[[`("yearID") %>% 
-    unique(.)
+    unique()
 Teams %>% 
     filter(!is.na(SF)) %>%  
     `[[`("yearID") %>% 
